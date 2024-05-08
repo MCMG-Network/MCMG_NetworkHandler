@@ -32,7 +32,8 @@ public class MCMG_NetworkHandler {
 
     public static final MinecraftChannelIdentifier MCMG_IDENTIFIER = MinecraftChannelIdentifier.from(ChannelNames.MCMG);
 
-    private static HashMap<String, ServerPing> serverStatuses = new HashMap<>();
+    private static HashMap<String, Boolean> serverStatuses = new HashMap<>();
+    private static HashMap<String, Integer> serverPlayerCounts = new HashMap<>();
 
     private final ProxyServer proxy;
     private final Logger logger;
@@ -116,7 +117,13 @@ public class MCMG_NetworkHandler {
             // Ping the server asynchronously
             server.ping().thenApplyAsync((ServerPing ping) ->
             {
-                serverStatuses.put(serverName, ping);
+                serverStatuses.put(serverName, true);
+
+                Optional<ServerPing.Players> serverPlayers = ping.getPlayers();
+                serverPlayers.ifPresent(players -> serverPlayerCounts.put(serverName, players.getOnline()));
+
+                logger.info("Pinged " + serverName + "! The server has " + serverPlayerCounts.get(serverName) + " players online.");
+
                 return ping;
             }).exceptionally((Throwable ex) ->
             {
@@ -128,12 +135,6 @@ public class MCMG_NetworkHandler {
             // If the server is online...
             if (serverStatuses.containsKey(serverName))
             {
-                Optional<ServerPing.Players> serverPlayers = serverStatuses.get(serverName).getPlayers();
-                int onlinePlayerCount = 99999;
-                if (serverPlayers.isPresent())
-                    onlinePlayerCount = serverPlayers.get().getOnline();
-
-                logger.info("Pinged " + serverName + "! The server has " + onlinePlayerCount + " players online.");
 
             }
         }
