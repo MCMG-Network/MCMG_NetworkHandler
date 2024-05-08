@@ -55,6 +55,7 @@ public class MCMG_NetworkHandler {
         // Store reference to the server that sent the request
         RegisteredServer prevServer = ((ServerConnection) e.getSource()).getPreviousServer().get();
 
+
         // Read incoming message data/contents
         ByteArrayDataInput in = ByteStreams.newDataInput(e.getData());
         String subChannel = in.readUTF();
@@ -87,7 +88,8 @@ public class MCMG_NetworkHandler {
             out.writeUTF(playerName);
             out.writeUTF(serverName);
 
-            prevServer.sendPluginMessage(MCMG_IDENTIFIER, out.toByteArray());
+            for (RegisteredServer server : proxy.getAllServers())
+                server.sendPluginMessage(MCMG_IDENTIFIER, out.toByteArray());
 
             logger.info("The MCMG_NetworkHandler is returning the requested server's status.");
         }
