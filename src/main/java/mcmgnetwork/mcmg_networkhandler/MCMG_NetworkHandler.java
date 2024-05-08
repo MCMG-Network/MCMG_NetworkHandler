@@ -12,10 +12,16 @@ import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.ServerConnection;
 import com.velocitypowered.api.proxy.messages.MinecraftChannelIdentifier;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
+import com.velocitypowered.api.proxy.server.ServerPing;
 import mcmgnetwork.mcmg_networkhandler.protocols.ChannelNames;
 import mcmgnetwork.mcmg_networkhandler.protocols.MessageTypes;
 import mcmgnetwork.mcmg_networkhandler.protocols.ServerTypes;
 import org.slf4j.Logger;
+
+import javax.security.auth.callback.Callback;
+import java.util.HashMap;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 @Plugin(
         id = "mcmg-network-handler",
@@ -25,6 +31,8 @@ import org.slf4j.Logger;
 public class MCMG_NetworkHandler {
 
     public static final MinecraftChannelIdentifier MCMG_IDENTIFIER = MinecraftChannelIdentifier.from(ChannelNames.MCMG);
+
+    private static HashMap<String, ServerPing> serverStatuses = new HashMap<>();
 
     private final ProxyServer proxy;
     private final Logger logger;
@@ -68,6 +76,8 @@ public class MCMG_NetworkHandler {
 
             //TODO Somehow determine what server name to return
 
+            getServerStatuses();
+
 
             //TODO remove this temp implementation
             boolean isActive = false;
@@ -93,6 +103,38 @@ public class MCMG_NetworkHandler {
                 server.sendPluginMessage(MCMG_IDENTIFIER, out.toByteArray());
 
             logger.info("The MCMG_NetworkHandler is returning the requested server's status.");
+        }
+    }
+
+    private void getServerStatuses()
+    {
+        for (RegisteredServer server : proxy.getAllServers())
+        {
+            // Retrieve and store the server's name
+            String serverName = server.getServerInfo().getName();
+            // Ping the server
+            CompletableFuture<ServerPing> pingResult = server.ping();
+
+            // Handle successful and failed pings
+            pingResult.thenAccept((ServerPing ping) -> serverStatuses.put(serverName, ping))
+                    .exceptionally( (Throwable ex) ->
+                    {
+                        serverStatuses.remove(serverName);
+                        logger.warn("Failed to ping " + serverName + ": " + ex.getMessage());
+                        return null;
+                    });
+
+            // If the server is online
+            if (serverStatuses.containsKey(serverName))
+            {
+                Optional<ServerPing.Players> serverPlayers = serverStatuses.get(serverName).getPlayers();
+                int onlinePlayerCount = 99999;
+                if (serverPlayers.isPresent())
+                    onlinePlayerCount = serverPlayers.get().getOnline();
+
+                logger.info("Pinged " + serverName + "! The server has " + onlinePlayerCount + " players online.");
+
+            }
         }
     }
 }
