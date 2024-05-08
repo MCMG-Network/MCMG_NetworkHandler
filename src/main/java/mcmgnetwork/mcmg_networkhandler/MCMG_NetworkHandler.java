@@ -52,8 +52,8 @@ public class MCMG_NetworkHandler {
         // Only handle plugin messages on the MCMG channel
         if (e.getIdentifier() != MCMG_IDENTIFIER) return;
 
-        // Store reference to the server that sent the request
-        RegisteredServer prevServer = ((ServerConnection) e.getSource()).getPreviousServer().get();
+        //TODO REMOVE Store reference to the server that sent the request
+        //RegisteredServer prevServer = ((ServerConnection) e.getSource()).getPreviousServer().get();
 
 
         // Read incoming message data/contents
