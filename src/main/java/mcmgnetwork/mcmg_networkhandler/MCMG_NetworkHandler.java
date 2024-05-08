@@ -112,19 +112,20 @@ public class MCMG_NetworkHandler {
         {
             // Retrieve and store the server's name
             String serverName = server.getServerInfo().getName();
-            // Ping the server
-            CompletableFuture<ServerPing> pingResult = server.ping();
 
-            // Handle successful and failed pings
-            pingResult.thenAccept((ServerPing ping) -> serverStatuses.put(serverName, ping))
-                    .exceptionally( (Throwable ex) ->
-                    {
-                        serverStatuses.remove(serverName);
-                        logger.warn("Failed to ping " + serverName + ": " + ex.getMessage());
-                        return null;
-                    });
+            // Ping the server asynchronously
+            server.ping().thenApplyAsync((ServerPing ping) ->
+            {
+                serverStatuses.put(serverName, ping);
+                return ping;
+            }).exceptionally((Throwable ex) ->
+            {
+                serverStatuses.remove(serverName);
+                logger.warn("Failed to ping " + serverName + ": " + ex.getMessage());
+                return null;
+            });
 
-            // If the server is online
+            // If the server is online...
             if (serverStatuses.containsKey(serverName))
             {
                 Optional<ServerPing.Players> serverPlayers = serverStatuses.get(serverName).getPlayers();
