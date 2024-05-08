@@ -12,6 +12,9 @@ import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.ServerConnection;
 import com.velocitypowered.api.proxy.messages.MinecraftChannelIdentifier;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
+import mcmgnetwork.mcmg_networkhandler.protocols.ChannelNames;
+import mcmgnetwork.mcmg_networkhandler.protocols.MessageTypes;
+import mcmgnetwork.mcmg_networkhandler.protocols.ServerTypes;
 import org.slf4j.Logger;
 
 @Plugin(
@@ -21,7 +24,7 @@ import org.slf4j.Logger;
 )
 public class MCMG_NetworkHandler {
 
-    public static final MinecraftChannelIdentifier MCMG_IDENTIFIER = MinecraftChannelIdentifier.from("mcmg:main");
+    public static final MinecraftChannelIdentifier MCMG_IDENTIFIER = MinecraftChannelIdentifier.from(ChannelNames.MCMG);
 
     private final ProxyServer proxy;
     private final Logger logger;
@@ -52,16 +55,12 @@ public class MCMG_NetworkHandler {
         // Only handle plugin messages on the MCMG channel
         if (e.getIdentifier() != MCMG_IDENTIFIER) return;
 
-        //TODO REMOVE Store reference to the server that sent the request
-        //RegisteredServer prevServer = ((ServerConnection) e.getSource()).getPreviousServer().get();
-
-
         // Read incoming message data/contents
         ByteArrayDataInput in = ByteStreams.newDataInput(e.getData());
         String subChannel = in.readUTF();
 
-        //
-        if (subChannel.equals("ServerTransferRequest"))
+        // Only handle SERVER_TRANSFER_REQUESTs
+        if (subChannel.equals(MessageTypes.SERVER_TRANSFER_REQUEST))
         {
             String playerName = in.readUTF();
             String serverType = in.readUTF();
@@ -74,16 +73,18 @@ public class MCMG_NetworkHandler {
             boolean isActive = false;
             String serverName = "";
 
-            if (serverType.equals("KOTH"))
+            if (serverType.equals(ServerTypes.KOTH_LOBBY))
             {
                 isActive = true;
                 serverName = "KOTH_lobby";
             }
 
 
+
+
             // Format return message
             ByteArrayDataOutput out = ByteStreams.newDataOutput();
-            out.writeUTF("ServerTransferResponse");
+            out.writeUTF(MessageTypes.SERVER_TRANSFER_RESPONSE);
             out.writeBoolean(isActive);
             out.writeUTF(playerName);
             out.writeUTF(serverName);
