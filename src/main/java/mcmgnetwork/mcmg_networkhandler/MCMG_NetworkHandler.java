@@ -33,8 +33,7 @@ public class MCMG_NetworkHandler {
 
     public static final MinecraftChannelIdentifier MCMG_IDENTIFIER = MinecraftChannelIdentifier.from(ChannelNames.MCMG);
 
-    private static final HashMap<String, Boolean> serverStatuses = new HashMap<>();
-    private static final HashMap<String, Integer> serverPlayerCounts = new HashMap<>();
+    private final HashMap<String, ServerInfoPackage> activeServerInfo = new HashMap<>();
 
     private final ProxyServer proxy;
     private final Logger logger;
@@ -74,9 +73,7 @@ public class MCMG_NetworkHandler {
         // Only handle SERVER_TRANSFER_REQUESTs
         if (subChannel.equals(MessageTypes.SERVER_TRANSFER_REQUEST))
         {
-            //TODO Somehow determine what server name to return
-
-            // Get server information
+            // Get updated server information
             CompletableFuture<Void> serverInfoFuture = getServerInfo();
 
             // Wait for all server pings to complete, then run remaining code:
@@ -129,18 +126,18 @@ public class MCMG_NetworkHandler {
             // Ping the server asynchronously
             CompletableFuture<ServerPing> futurePing = server.ping().thenApplyAsync((ServerPing ping) ->
             {
-                // Successful ping -> set this server status to true (ONLINE)
-                serverStatuses.put(serverName, true);
-                // Retrieve and store the server's # of online players
-                Optional<ServerPing.Players> serverPlayers = ping.getPlayers();
-                serverPlayers.ifPresent(players -> serverPlayerCounts.put(serverName, players.getOnline()));
+                // Successful ping -> store server information
+                activeServerInfo.put(serverName, new ServerInfoPackage(ping, serverName));
 
-                logger.info("Pinged " + serverName + "! The server has " + serverPlayerCounts.get(serverName) + " players online."); //TODO remove
+                //TODO remove
+                logger.info("Pinged {}! The server has {} out of {} players online.", serverName,
+                        activeServerInfo.get(serverName).getOnlinePlayerCount(), activeServerInfo.get(serverName).getMaximumPlayerCount());
+
                 return ping;
             }).exceptionally((Throwable ex) ->
             {
-                // Failed ping -> set this server status to false (OFFLINE)
-                serverStatuses.remove(serverName);
+                // Failed ping -> remove this server from active server list
+                activeServerInfo.remove(serverName);
 
                 logger.warn("Failed to ping " + serverName + ": " + ex.getMessage());   //TODO remove
                 return null;
