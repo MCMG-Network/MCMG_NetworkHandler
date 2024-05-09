@@ -194,18 +194,18 @@ public class MCMG_NetworkHandler {
         int maxPlayerCount = -1;
 
         // Filter through active servers to identify target server for transferring
-        for (ServerInfoPackage server : activeServerInfo.values())
+        for (ServerInfoPackage serverInfo : activeServerInfo.values())
         {
             // Only consider servers of the specified type
-            if (!server.getServerName().contains(serverType)) continue;
+            if (!serverInfo.getServerName().contains(serverType)) continue;
             // Only consider servers with room for another player
-            if (server.getOnlinePlayerCount() == server.getMaximumPlayerCount()) continue;
+            if (serverInfo.getOnlinePlayerCount() == serverInfo.getMaximumPlayerCount()) continue;
 
             // Only update the target server if this server has more players than the last target server
-            if (server.getOnlinePlayerCount() > maxPlayerCount)
+            if (serverInfo.getOnlinePlayerCount() > maxPlayerCount)
             {
-                targetServer = server.getServerName();
-                maxPlayerCount = server.getOnlinePlayerCount();
+                targetServer = serverInfo.getServerName();
+                maxPlayerCount = serverInfo.getOnlinePlayerCount();
             }
         }
 
