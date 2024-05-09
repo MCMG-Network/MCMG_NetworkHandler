@@ -95,7 +95,7 @@ public class MCMG_NetworkHandler {
                 sendServerTransferResponse(playerName, targetServer);
 
                 // If no transferable target server could be found, start one up
-                if (targetServer == null)
+                //if (targetServer == null)
                 {
 
                 }
@@ -152,12 +152,12 @@ public class MCMG_NetworkHandler {
     /**
      * @param serverType The type of server to be targeted
      * @return The name of a server of the specified type (if one was found). If multiple valid servers are found, the
-     * name of the server with the most online players (and room for more) is returned. If no valid servers are found
-     * null is returned.
+     * name of the server with the most online players (and room for more) is returned. If no valid servers are found,
+     * an empty string is returned.
      */
     private String findTargetServer(String serverType)
     {
-        String targetServer = null;
+        String targetServer = "";
         // Store count used to find available server with most active players
         int maxPlayerCount = -1;
 
@@ -183,14 +183,15 @@ public class MCMG_NetworkHandler {
     /**
      * Sends a SERVER_TRANSFER_RESPONSE, based on the provided parameters, to the network using plugin messaging. If
      * the name of a valid server is entered, it is assumed to be online. If no target server could be found, the
-     * provided targetServerName should be null; this status will be relayed to the provided player.
+     * provided targetServerName should be an empty string; this status will be relayed to the provided player.
      * @param playerName The name of the player to be transferred to the target server
-     * @param targetServerName The name of the server that the provided player will be transferred to; null if no
-     *                         target server could be found
+     * @param targetServerName The name of the server that the provided player will be transferred to; an empty string
+     *                         if no target server could be found
      */
-    private void sendServerTransferResponse(String playerName, String targetServerName) {
+    private void sendServerTransferResponse(String playerName, String targetServerName)
+    {
         // Initialize boolean storing whether or not a target server was found
-        boolean isActive = targetServerName != null;
+        boolean isActive = !targetServerName.isEmpty();
 
         // Format return message
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
