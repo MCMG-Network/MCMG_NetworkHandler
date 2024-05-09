@@ -15,13 +15,11 @@ import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.api.proxy.server.ServerPing;
 import mcmgnetwork.mcmg_networkhandler.protocols.ChannelNames;
 import mcmgnetwork.mcmg_networkhandler.protocols.MessageTypes;
-import mcmgnetwork.mcmg_networkhandler.protocols.ServerTypes;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 @Plugin(
@@ -33,6 +31,7 @@ public class MCMG_NetworkHandler {
 
     public static final MinecraftChannelIdentifier MCMG_IDENTIFIER = MinecraftChannelIdentifier.from(ChannelNames.MCMG);
 
+    // Maps the name of active servers to information relating to that server
     private final HashMap<String, ServerInfoPackage> activeServerInfo = new HashMap<>();
 
     private final ProxyServer proxy;
@@ -77,7 +76,7 @@ public class MCMG_NetworkHandler {
         String serverType = in.readUTF();
 
         // Only handle SERVER_TRANSFER_REQUESTs
-        if (subChannel.equals(MessageTypes.SERVER_TRANSFER_REQUEST))
+        if (subChannel.equals(MessageTypes.LOBBY_TRANSFER_REQUEST))
         {
             // Get updated server information
             CompletableFuture<Void> serverInfoFuture = getServerInfo();
@@ -191,7 +190,7 @@ public class MCMG_NetworkHandler {
 
         // Format return message
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
-        out.writeUTF(MessageTypes.SERVER_TRANSFER_RESPONSE);
+        out.writeUTF(MessageTypes.LOBBY_TRANSFER_RESPONSE);
         out.writeBoolean(isActive);
         out.writeUTF(playerName);
         out.writeUTF(targetServerName);
