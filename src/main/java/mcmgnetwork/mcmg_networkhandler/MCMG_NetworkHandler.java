@@ -68,14 +68,12 @@ public class MCMG_NetworkHandler {
         // Read incoming message data/contents
         ByteArrayDataInput in = ByteStreams.newDataInput(e.getData());
         String subChannel = in.readUTF();
+        String playerName = in.readUTF();
+        String serverType = in.readUTF();
 
         // Only handle SERVER_TRANSFER_REQUESTs
         if (subChannel.equals(MessageTypes.SERVER_TRANSFER_REQUEST))
         {
-            String playerName = in.readUTF();
-            String serverType = in.readUTF();
-
-
             //TODO Somehow determine what server name to return
 
             // Get server information
@@ -112,6 +110,12 @@ public class MCMG_NetworkHandler {
         }
     }
 
+    /**
+     * Updates the serverStatuses and serverPlayerCounts hashmaps by pinging all network servers, handling successful
+     * and failed pings, and extracting/storing correlating information.
+     * @return a CompletableFuture that completes when all ping operations have completed, allowing other methods
+     * to wait on this method's completion
+     */
     private CompletableFuture<Void> getServerInfo()
     {
         // Initialize a list to hold/track all server ping results
