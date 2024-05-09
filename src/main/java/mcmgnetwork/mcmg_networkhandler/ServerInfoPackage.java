@@ -1,6 +1,7 @@
 package mcmgnetwork.mcmg_networkhandler;
 
 import com.velocitypowered.api.proxy.server.ServerPing;
+import lombok.Getter;
 
 import java.util.Optional;
 
@@ -12,11 +13,27 @@ import java.util.Optional;
  *  <p>Author(s): Miles Bovero
  *  <p>Date Created: 5/7/24
  */
+@Getter
 public class ServerInfoPackage
 {
+    /**
+     * The ServerPing object that this ServerInfoPackage is backed by
+     */
     private final ServerPing serverPing;
+
+    /**
+     * The name of the server that this ServerInfoPackage was constructed from
+     */
     private final String serverName;
+
+    /**
+     * The number of players online the server that this ServerInfoPackage was constructed from
+     */
     private int onlinePlayerCount;
+
+    /**
+     * The maximum number of players that can be online the server that this ServerInfoPackage was constructed from
+     */
     private int maximumPlayerCount;
 
     /**
@@ -39,24 +56,4 @@ public class ServerInfoPackage
         });
     }
 
-    /**
-     * @return The ServerPing object that this ServerInfoPackage is backed by
-     */
-    public ServerPing getServerPing() { return serverPing; }
-
-    /**
-     * @return The name of the server that this ServerInfoPackage was constructed from
-     */
-    public String getServerName() { return serverName; }
-
-    /**
-     * @return The number of players online the server that this ServerInfoPackage was constructed from
-     */
-    public int getOnlinePlayerCount() { return onlinePlayerCount; }
-
-    /**
-     * @return The maximum number of players that can be online the server that this ServerInfoPackage was constructed
-     * from
-     */
-    public int getMaximumPlayerCount() { return maximumPlayerCount; }
 }
