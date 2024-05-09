@@ -18,8 +18,9 @@ import mcmgnetwork.mcmg_networkhandler.protocols.MessageTypes;
 import mcmgnetwork.mcmg_networkhandler.protocols.ServerTypes;
 import org.slf4j.Logger;
 
-import javax.security.auth.callback.Callback;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
@@ -32,8 +33,8 @@ public class MCMG_NetworkHandler {
 
     public static final MinecraftChannelIdentifier MCMG_IDENTIFIER = MinecraftChannelIdentifier.from(ChannelNames.MCMG);
 
-    private static HashMap<String, Boolean> serverStatuses = new HashMap<>();
-    private static HashMap<String, Integer> serverPlayerCounts = new HashMap<>();
+    private static final HashMap<String, Boolean> serverStatuses = new HashMap<>();
+    private static final HashMap<String, Integer> serverPlayerCounts = new HashMap<>();
 
     private final ProxyServer proxy;
     private final Logger logger;
@@ -77,66 +78,75 @@ public class MCMG_NetworkHandler {
 
             //TODO Somehow determine what server name to return
 
-            getServerStatuses();
+            // Get server information
+            CompletableFuture<Void> serverInfoFuture = getServerInfo();
 
-
-            //TODO remove this temp implementation
-            boolean isActive = false;
-            String serverName = "";
-
-            if (serverType.equals(ServerTypes.KOTH_LOBBY))
+            // Wait for all server pings to complete, then run remaining code:
+            serverInfoFuture.thenRun(() ->
             {
-                isActive = true;
-                serverName = "KOTH_lobby";
-            }
+                //TODO remove this temp implementation
+                boolean isActive = false;
+                String serverName = "";
+
+                if (serverType.equals(ServerTypes.KOTH_LOBBY))
+                {
+                    isActive = true;
+                    serverName = "KOTH_lobby";
+                }
 
 
 
 
-            // Format return message
-            ByteArrayDataOutput out = ByteStreams.newDataOutput();
-            out.writeUTF(MessageTypes.SERVER_TRANSFER_RESPONSE);
-            out.writeBoolean(isActive);
-            out.writeUTF(playerName);
-            out.writeUTF(serverName);
+                // Format return message
+                ByteArrayDataOutput out = ByteStreams.newDataOutput();
+                out.writeUTF(MessageTypes.SERVER_TRANSFER_RESPONSE);
+                out.writeBoolean(isActive);
+                out.writeUTF(playerName);
+                out.writeUTF(serverName);
 
-            for (RegisteredServer server : proxy.getAllServers())
-                server.sendPluginMessage(MCMG_IDENTIFIER, out.toByteArray());
+                for (RegisteredServer server : proxy.getAllServers())
+                    server.sendPluginMessage(MCMG_IDENTIFIER, out.toByteArray());
 
-            logger.info("The MCMG_NetworkHandler is returning the requested server's status.");
+                logger.info("The MCMG_NetworkHandler is returning the requested server's status.");
+            });
         }
     }
 
-    private void getServerStatuses()
+    private CompletableFuture<Void> getServerInfo()
     {
+        // Initialize a list to hold/track all server ping results
+        List<CompletableFuture<ServerPing>> pingResults = new ArrayList<>();
+
         for (RegisteredServer server : proxy.getAllServers())
         {
             // Retrieve and store the server's name
             String serverName = server.getServerInfo().getName();
 
             // Ping the server asynchronously
-            server.ping().thenApplyAsync((ServerPing ping) ->
+            CompletableFuture<ServerPing> futurePing = server.ping().thenApplyAsync((ServerPing ping) ->
             {
+                // Successful ping -> set this server status to true (ONLINE)
                 serverStatuses.put(serverName, true);
-
+                // Retrieve and store the server's # of online players
                 Optional<ServerPing.Players> serverPlayers = ping.getPlayers();
                 serverPlayers.ifPresent(players -> serverPlayerCounts.put(serverName, players.getOnline()));
 
-                logger.info("Pinged " + serverName + "! The server has " + serverPlayerCounts.get(serverName) + " players online.");
-
+                logger.info("Pinged " + serverName + "! The server has " + serverPlayerCounts.get(serverName) + " players online."); //TODO remove
                 return ping;
             }).exceptionally((Throwable ex) ->
             {
+                // Failed ping -> set this server status to false (OFFLINE)
                 serverStatuses.remove(serverName);
-                logger.warn("Failed to ping " + serverName + ": " + ex.getMessage());
+
+                logger.warn("Failed to ping " + serverName + ": " + ex.getMessage());   //TODO remove
                 return null;
             });
 
-            // If the server is online...
-            if (serverStatuses.containsKey(serverName))
-            {
-
-            }
+            // Store the server ping result
+            pingResults.add(futurePing);
         }
+
+        // Return a CompletableFuture that completes when all ping operations complete
+        return CompletableFuture.allOf(pingResults.toArray(new CompletableFuture[0]));
     }
 }
