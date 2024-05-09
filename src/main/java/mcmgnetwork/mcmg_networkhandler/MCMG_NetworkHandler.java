@@ -79,28 +79,26 @@ public class MCMG_NetworkHandler {
             // Wait for all server pings to complete, then run remaining code:
             serverInfoFuture.thenRun(() ->
             {
-                //TODO remove this temp implementation
-                boolean isActive = false;
-                String serverName = "";
+//                //TODO remove this temp implementation
+//                boolean isActive = false;
+//                String serverName = "";
+//
+//                if (serverType.equals(ServerTypes.KOTH_LOBBY))
+//                {
+//                    isActive = true;
+//                    serverName = "KOTH_lobby";
+//                }
 
-                if (serverType.equals(ServerTypes.KOTH_LOBBY))
+                // Attempt to identify a target server to transfer the player to
+                String targetServer = findTargetServer(serverType);
+                // Send a response to the network indicating whether or not a transferable server was found
+                sendServerTransferResponse(playerName, targetServer);
+
+                // If no transferable target server could be found, start one up
+                if (targetServer == null)
                 {
-                    isActive = true;
-                    serverName = "KOTH_lobby";
+
                 }
-
-
-
-
-                // Format return message
-                ByteArrayDataOutput out = ByteStreams.newDataOutput();
-                out.writeUTF(MessageTypes.SERVER_TRANSFER_RESPONSE);
-                out.writeBoolean(isActive);
-                out.writeUTF(playerName);
-                out.writeUTF(serverName);
-
-                for (RegisteredServer server : proxy.getAllServers())
-                    server.sendPluginMessage(MCMG_IDENTIFIER, out.toByteArray());
 
                 logger.info("The MCMG_NetworkHandler is returning the requested server's status.");
             });
@@ -149,5 +147,59 @@ public class MCMG_NetworkHandler {
 
         // Return a CompletableFuture that completes when all ping operations complete
         return CompletableFuture.allOf(pingResults.toArray(new CompletableFuture[0]));
+    }
+
+    /**
+     * @param serverType The type of server to be targeted
+     * @return The name of a server of the specified type (if one was found). If multiple valid servers are found, the
+     * name of the server with the most online players (and room for more) is returned. If no valid servers are found
+     * null is returned.
+     */
+    private String findTargetServer(String serverType)
+    {
+        String targetServer = null;
+        // Store count used to find available server with most active players
+        int maxPlayerCount = -1;
+
+        // Filter through active servers to identify target server for transferring
+        for (ServerInfoPackage server : activeServerInfo.values())
+        {
+            // Only consider servers of the specified type
+            if (!server.getServerName().contains(serverType)) continue;
+            // Only consider servers with room for another player
+            if (server.getOnlinePlayerCount() == server.getMaximumPlayerCount()) continue;
+
+            // Only update the target server if this server has more players than the last target server
+            if (server.getOnlinePlayerCount() > maxPlayerCount)
+            {
+                targetServer = server.getServerName();
+                maxPlayerCount = server.getOnlinePlayerCount();
+            }
+        }
+
+        return targetServer;
+    }
+
+    /**
+     * Sends a SERVER_TRANSFER_RESPONSE, based on the provided parameters, to the network using plugin messaging. If
+     * the name of a valid server is entered, it is assumed to be online. If no target server could be found, the
+     * provided targetServerName should be null; this status will be relayed to the provided player.
+     * @param playerName The name of the player to be transferred to the target server
+     * @param targetServerName The name of the server that the provided player will be transferred to; null if no
+     *                         target server could be found
+     */
+    private void sendServerTransferResponse(String playerName, String targetServerName) {
+        // Initialize boolean storing whether or not a target server was found
+        boolean isActive = targetServerName != null;
+
+        // Format return message
+        ByteArrayDataOutput out = ByteStreams.newDataOutput();
+        out.writeUTF(MessageTypes.SERVER_TRANSFER_RESPONSE);
+        out.writeBoolean(isActive);
+        out.writeUTF(playerName);
+        out.writeUTF(targetServerName);
+        // Send response message
+        for (RegisteredServer server : proxy.getAllServers())
+            server.sendPluginMessage(MCMG_IDENTIFIER, out.toByteArray());
     }
 }
