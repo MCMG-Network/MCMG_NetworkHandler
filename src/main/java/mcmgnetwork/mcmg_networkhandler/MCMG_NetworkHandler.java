@@ -37,6 +37,12 @@ public class MCMG_NetworkHandler {
     private final ProxyServer proxy;
     private final Logger logger;
 
+    /**
+     * Creates a new MCMG_NetworkHandler plugin instance, injecting a proxy server and logger for plugin capabilities
+     * and console messages.
+     * @param proxy The proxy server that this plugin operates on
+     * @param logger The logger used to write info, warnings, etc. to the server console
+     */
     @Inject
     public MCMG_NetworkHandler(ProxyServer proxy, Logger logger)
     {
@@ -62,7 +68,7 @@ public class MCMG_NetworkHandler {
     @Subscribe
     public void onPluginMessageFromPlugin(PluginMessageEvent e)
     {
-        logger.info("The MCMG_NetworkHandler received a plugin message.");
+        logger.info("The MCMG_NetworkHandler received a plugin message.");  //TODO remove
 
         // Only accept messages from servers (not players)
         if (!(e.getSource() instanceof ServerConnection)) return;
@@ -95,7 +101,7 @@ public class MCMG_NetworkHandler {
 
                 }
 
-                logger.info("The MCMG_NetworkHandler is returning the requested server's status.");
+                logger.info("The MCMG_NetworkHandler is returning the requested server's status."); //TODO remove
             });
         }
     }
