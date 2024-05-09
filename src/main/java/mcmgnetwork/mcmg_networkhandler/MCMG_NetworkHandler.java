@@ -45,6 +45,11 @@ public class MCMG_NetworkHandler {
         this.logger = logger;
     }
 
+    /**
+     * Executed upon initialization of the proxy server running this plugin. Registers necessary plugin messaging
+     * channels and announces successful initialization.
+     * @param event Ignore
+     */
     @Subscribe
     public void onProxyInitialization(ProxyInitializeEvent event)
     {
@@ -54,6 +59,7 @@ public class MCMG_NetworkHandler {
         logger.info("The MCMG_NetworkHandler plugin has successfully started!");
     }
 
+    //TODO add method header
     @Subscribe
     public void onPluginMessageFromPlugin(PluginMessageEvent e)
     {
@@ -79,16 +85,6 @@ public class MCMG_NetworkHandler {
             // Wait for all server pings to complete, then run remaining code:
             serverInfoFuture.thenRun(() ->
             {
-//                //TODO remove this temp implementation
-//                boolean isActive = false;
-//                String serverName = "";
-//
-//                if (serverType.equals(ServerTypes.KOTH_LOBBY))
-//                {
-//                    isActive = true;
-//                    serverName = "KOTH_lobby";
-//                }
-
                 // Attempt to identify a target server to transfer the player to
                 String targetServer = findTargetServer(serverType);
                 // Send a response to the network indicating whether or not a transferable server was found
