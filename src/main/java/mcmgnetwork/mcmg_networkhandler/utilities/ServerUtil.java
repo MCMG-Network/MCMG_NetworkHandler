@@ -3,21 +3,21 @@ package mcmgnetwork.mcmg_networkhandler.utilities;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.api.proxy.server.ServerPing;
 import lombok.Getter;
+import mcmgnetwork.mcmg_networkhandler.ConfigManager;
 import mcmgnetwork.mcmg_networkhandler.MCMG_NetworkHandler;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 /**
  * Description: <p>
- *  A utility class holding static data and functions that handle specific information regarding active network servers.
+ *  A utility class holding static data and functions that handle specific actions and information regarding network
+ *  servers.
  *
  *  <p>Author(s): Miles Bovero
  *  <p>Date Created: 5/9/24
  */
-public class ActiveServerUtil
+public class ServerUtil
 {
 
     /**
@@ -77,7 +77,7 @@ public class ActiveServerUtil
      * name of the server with the most online players (and room for more) is returned. If no valid servers are found,
      * an empty string is returned.
      */
-    public static String findTargetServer(String serverType)
+    public static String findTransferableServerName(String serverType)
     {
         String targetServer = "";
         // Store count used to find available server with most active players
@@ -100,5 +100,26 @@ public class ActiveServerUtil
         }
 
         return targetServer;
+    }
+
+    public static String getNewServerName(String serverType)
+    {
+        // Find and store names of all active servers of the provided type
+        Set<String> activeServerNames = new HashSet<>();
+        for (String serverName : activeServerInfo.keySet())
+            if (serverName.contains(serverType))
+                activeServerNames.add(serverName);
+
+        // Iterate through active servers to try and find an open slot for a new server to exist
+        int maxServerTypeCount = ConfigManager.getMaxServerTypeCount(serverType);
+        for (int i=0; i<maxServerTypeCount; i++)
+        {
+            String serverName = serverType + i;
+            if (!activeServerNames.contains(serverName))
+                return serverName;
+        }
+
+        // If the serverType instance count is full, return "full"
+        return "full";
     }
 }
