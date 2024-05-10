@@ -14,15 +14,16 @@ import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.ServerConnection;
 import com.velocitypowered.api.proxy.messages.MinecraftChannelIdentifier;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
-import com.velocitypowered.api.proxy.server.ServerPing;
 import dev.dejvokep.boostedyaml.YamlDocument;
 import dev.dejvokep.boostedyaml.dvs.versioning.BasicVersioning;
 import dev.dejvokep.boostedyaml.settings.dumper.DumperSettings;
 import dev.dejvokep.boostedyaml.settings.general.GeneralSettings;
 import dev.dejvokep.boostedyaml.settings.loader.LoaderSettings;
 import dev.dejvokep.boostedyaml.settings.updater.UpdaterSettings;
+import lombok.Getter;
 import mcmgnetwork.mcmg_networkhandler.protocols.ChannelNames;
 import mcmgnetwork.mcmg_networkhandler.protocols.MessageTypes;
+import mcmgnetwork.mcmg_networkhandler.utilities.ActiveServerUtil;
 import org.slf4j.Logger;
 
 import java.io.File;
@@ -31,6 +32,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
+//TODO file header
 @Plugin(
         id = "mcmg-network-handler",
         name = "MCMG_NetworkHandler",
@@ -38,13 +40,13 @@ import java.util.concurrent.CompletableFuture;
 )
 public class MCMG_NetworkHandler {
 
-    public static final MinecraftChannelIdentifier MCMG_IDENTIFIER = MinecraftChannelIdentifier.from(ChannelNames.MCMG);
+    @Getter
+    private static final MinecraftChannelIdentifier MCMG_IDENTIFIER = MinecraftChannelIdentifier.from(ChannelNames.MCMG);
 
-    // Maps the name of active servers to information relating to that server
-    private final HashMap<String, ServerInfoPackage> activeServerInfo = new HashMap<>();
-
-    private final ProxyServer proxy;
-    private final Logger logger;
+    @Getter
+    private static ProxyServer proxy;
+    @Getter
+    private static Logger logger;
     private static YamlDocument config;
 
     /**
@@ -56,8 +58,8 @@ public class MCMG_NetworkHandler {
     @Inject
     public MCMG_NetworkHandler(ProxyServer proxy, Logger logger, @DataDirectory Path dataDirectory)
     {
-        this.proxy = proxy;
-        this.logger = logger;
+        MCMG_NetworkHandler.proxy = proxy;
+        MCMG_NetworkHandler.logger = logger;
 
         try
         {
@@ -116,13 +118,13 @@ public class MCMG_NetworkHandler {
         if (subChannel.equals(MessageTypes.LOBBY_TRANSFER_REQUEST))
         {
             // Get updated server information
-            CompletableFuture<Void> serverInfoFuture = getServerInfo();
+            CompletableFuture<Void> serverInfoFuture = ActiveServerUtil.getServerInfo();
 
             // Wait for all server pings to complete, then run remaining code:
             serverInfoFuture.thenRun(() ->
             {
                 // Attempt to identify a target server to transfer the player to
-                String targetServer = findTargetServer(serverType);
+                String targetServer = ActiveServerUtil.findTargetServer(serverType);
                 // Send a response to the network indicating whether or not a transferable server was found
                 sendServerTransferResponse(playerName, targetServer);
 
@@ -137,80 +139,7 @@ public class MCMG_NetworkHandler {
         }
     }
 
-    /**
-     * Updates the serverStatuses and serverPlayerCounts hashmaps by pinging all network servers, handling successful
-     * and failed pings, and extracting/storing correlating information.
-     * @return a CompletableFuture that completes when all ping operations have completed, allowing other methods
-     * to wait on this method's completion
-     */
-    private CompletableFuture<Void> getServerInfo()
-    {
-        // Initialize a list to hold/track all server ping results
-        List<CompletableFuture<ServerPing>> pingResults = new ArrayList<>();
 
-        for (RegisteredServer server : proxy.getAllServers())
-        {
-            // Retrieve and store the server's name
-            String serverName = server.getServerInfo().getName();
-
-            // Ping the server asynchronously
-            CompletableFuture<ServerPing> futurePing = server.ping().thenApplyAsync((ServerPing ping) ->
-            {
-                // Successful ping -> store server information
-                activeServerInfo.put(serverName, new ServerInfoPackage(ping, serverName));
-
-                //TODO remove
-                logger.info("Pinged {}! The server has {} out of {} players online.", serverName,
-                        activeServerInfo.get(serverName).getOnlinePlayerCount(), activeServerInfo.get(serverName).getMaximumPlayerCount());
-
-                return ping;
-            }).exceptionally((Throwable ex) ->
-            {
-                // Failed ping -> remove this server from active server list
-                activeServerInfo.remove(serverName);
-
-                logger.warn("Failed to ping " + serverName + ": " + ex.getMessage());   //TODO remove
-                return null;
-            });
-
-            // Store the server ping result
-            pingResults.add(futurePing);
-        }
-
-        // Return a CompletableFuture that completes when all ping operations complete
-        return CompletableFuture.allOf(pingResults.toArray(new CompletableFuture[0]));
-    }
-
-    /**
-     * @param serverType The type of server to be targeted
-     * @return The name of a server of the specified type (if one was found). If multiple valid servers are found, the
-     * name of the server with the most online players (and room for more) is returned. If no valid servers are found,
-     * an empty string is returned.
-     */
-    private String findTargetServer(String serverType)
-    {
-        String targetServer = "";
-        // Store count used to find available server with most active players
-        int maxPlayerCount = -1;
-
-        // Filter through active servers to identify target server for transferring
-        for (ServerInfoPackage serverInfo : activeServerInfo.values())
-        {
-            // Only consider servers of the specified type
-            if (!serverInfo.getServerName().contains(serverType)) continue;
-            // Only consider servers with room for another player
-            if (serverInfo.getOnlinePlayerCount() == serverInfo.getMaximumPlayerCount()) continue;
-
-            // Only update the target server if this server has more players than the last target server
-            if (serverInfo.getOnlinePlayerCount() > maxPlayerCount)
-            {
-                targetServer = serverInfo.getServerName();
-                maxPlayerCount = serverInfo.getOnlinePlayerCount();
-            }
-        }
-
-        return targetServer;
-    }
 
     /**
      * Sends a SERVER_TRANSFER_RESPONSE, based on the provided parameters, to the network using plugin messaging. If
@@ -220,7 +149,7 @@ public class MCMG_NetworkHandler {
      * @param targetServerName The name of the server that the provided player will be transferred to; an empty string
      *                         if no target server could be found
      */
-    private void sendServerTransferResponse(String playerName, String targetServerName)
+    public static void sendServerTransferResponse(String playerName, String targetServerName)
     {
         // Initialize boolean storing whether or not a target server was found
         boolean isActive = !targetServerName.isEmpty();
@@ -232,7 +161,7 @@ public class MCMG_NetworkHandler {
         out.writeUTF(playerName);
         out.writeUTF(targetServerName);
         // Send response message
-        for (RegisteredServer server : proxy.getAllServers())
-            server.sendPluginMessage(MCMG_IDENTIFIER, out.toByteArray());
+        for (RegisteredServer server : MCMG_NetworkHandler.getProxy().getAllServers())
+            server.sendPluginMessage(MCMG_NetworkHandler.getMCMG_IDENTIFIER(), out.toByteArray());
     }
 }
