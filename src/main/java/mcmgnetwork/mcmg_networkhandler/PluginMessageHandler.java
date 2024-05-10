@@ -82,10 +82,6 @@ public class PluginMessageHandler
 
             // Send a response to the network
             sendLobbyTransferResponse(serverStatus, playerName, serverName);
-            //TODO remove debug tool
-            MCMG_NetworkHandler.getLogger().info("sendLobbyTransferResponse contents: " + serverStatus + ", " + playerName +
-                    ", " + serverName);
-
         });
     }
 
@@ -107,6 +103,9 @@ public class PluginMessageHandler
         for (RegisteredServer server : MCMG_NetworkHandler.getProxy().getAllServers())
             server.sendPluginMessage(MCMG_IDENTIFIER, out.toByteArray());
 
+        //TODO remove debug tool
+        MCMG_NetworkHandler.getLogger().info("sendLobbyTransferResponse contents: " + serverStatus + ", " + playerName +
+                ", " + serverName);
         MCMG_NetworkHandler.getLogger().info("The MCMG_NetworkHandler is returning the requested server's status."); //TODO remove
     }
 }
