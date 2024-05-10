@@ -11,7 +11,8 @@ import com.velocitypowered.api.proxy.server.RegisteredServer;
 import lombok.Getter;
 import mcmgnetwork.mcmg_networkhandler.protocols.ChannelNames;
 import mcmgnetwork.mcmg_networkhandler.protocols.MessageTypes;
-import mcmgnetwork.mcmg_networkhandler.utilities.ActiveServerUtil;
+import mcmgnetwork.mcmg_networkhandler.protocols.ServerStatuses;
+import mcmgnetwork.mcmg_networkhandler.utilities.ServerUtil;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -57,45 +58,42 @@ public class PluginMessageHandler
         String serverType = in.readUTF();
 
         // Get updated server information
-        CompletableFuture<Void> serverInfoFuture = ActiveServerUtil.getServerInfo();
+        CompletableFuture<Void> serverInfoFuture = ServerUtil.getServerInfo();
 
         // Wait for all server pings to complete, then run remaining code:
         serverInfoFuture.thenRun(() ->
         {
+            // Track server status (initially assumed to be online & transferable)
+            String serverStatus = ServerStatuses.TRANSFERABLE;
+
             // Attempt to identify a target server to transfer the player to
-            String targetServer = ActiveServerUtil.findTargetServer(serverType);
-            // Send a response to the network indicating whether or not a transferable server was found
-            sendServerTransferResponse(playerName, targetServer);
+            String serverName = ServerUtil.findTransferableServerName(serverType);
 
-            // If no transferable target server could be found, start one up
-            //if (targetServer == null)
-            {
+            // If no transferable target server could be found, attempt to start a new one
+            if (serverName.isEmpty())
+                serverStatus = ServerUtil.startNewServer(serverType);   // Store updated server status
 
-            }
+            // Send a response to the network
+            sendLobbyTransferResponse(serverStatus, playerName, serverName);
 
             MCMG_NetworkHandler.getLogger().info("The MCMG_NetworkHandler is returning the requested server's status."); //TODO remove
         });
     }
 
     /**
-     * Sends a SERVER_TRANSFER_RESPONSE, based on the provided parameters, to the network using plugin messaging. If
-     * the name of a valid server is entered, it is assumed to be online. If no target server could be found, the
-     * provided targetServerName should be an empty string; this status will be relayed to the provided player.
-     * @param playerName The name of the player to be transferred to the target server
-     * @param targetServerName The name of the server that the provided player will be transferred to; an empty string
-     *                         if no target server could be found
+     * Sends a LOBBY_TRANSFER_RESPONSE with the provided parameters to the network using plugin messaging.
+     * @param serverStatus
+     * @param playerName
+     * @param serverName
      */
-    private static void sendServerTransferResponse(String playerName, String targetServerName)
+    private static void sendLobbyTransferResponse(String serverStatus, String playerName, String serverName)
     {
-        // Initialize boolean storing whether or not a target server was found
-        boolean isActive = !targetServerName.isEmpty();
-
         // Format return message
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
         out.writeUTF(MessageTypes.LOBBY_TRANSFER_RESPONSE);
-        out.writeBoolean(isActive);
+        out.writeUTF(serverStatus);
         out.writeUTF(playerName);
-        out.writeUTF(targetServerName);
+        out.writeUTF(serverName);
         // Send response message
         for (RegisteredServer server : MCMG_NetworkHandler.getProxy().getAllServers())
             server.sendPluginMessage(MCMG_IDENTIFIER, out.toByteArray());
