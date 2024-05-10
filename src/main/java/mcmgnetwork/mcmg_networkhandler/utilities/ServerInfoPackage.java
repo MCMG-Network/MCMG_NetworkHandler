@@ -1,4 +1,4 @@
-package mcmgnetwork.mcmg_networkhandler;
+package mcmgnetwork.mcmg_networkhandler.utilities;
 
 import com.velocitypowered.api.proxy.server.ServerPing;
 import lombok.Getter;
