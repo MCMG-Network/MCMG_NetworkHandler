@@ -8,6 +8,7 @@ import com.velocitypowered.api.event.connection.PluginMessageEvent;
 import com.velocitypowered.api.proxy.ServerConnection;
 import com.velocitypowered.api.proxy.messages.MinecraftChannelIdentifier;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
+import lombok.Getter;
 import mcmgnetwork.mcmg_networkhandler.protocols.ChannelNames;
 import mcmgnetwork.mcmg_networkhandler.protocols.MessageTypes;
 import mcmgnetwork.mcmg_networkhandler.utilities.ActiveServerUtil;
@@ -23,7 +24,7 @@ import java.util.concurrent.CompletableFuture;
  */
 public class PluginMessageHandler
 {
-
+    @Getter
     private static final MinecraftChannelIdentifier MCMG_IDENTIFIER = MinecraftChannelIdentifier.from(ChannelNames.MCMG);
 
     /**
