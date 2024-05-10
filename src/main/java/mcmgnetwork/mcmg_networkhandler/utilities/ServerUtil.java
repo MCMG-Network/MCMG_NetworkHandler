@@ -106,8 +106,14 @@ public class ServerUtil
 
     public static String startNewServer(String serverType)
     {
+        //TODO remove debug line
+        MCMG_NetworkHandler.getLogger().info("Entering startNewServer method!");
+
         // Attempt to retrieve a new server instance's name
         String result = getNewServerName(serverType);
+        //TODO remove debug line
+        MCMG_NetworkHandler.getLogger().info("getNewServerName result: " + result);
+
 
         // If there is no room for a new server of the specified type, return early
         if (result.equals(ServerStatuses.FULL))
@@ -129,6 +135,9 @@ public class ServerUtil
      */
     private static String getNewServerName(String serverType)
     {
+        //TODO remove debug line
+        MCMG_NetworkHandler.getLogger().info("Entering getNewServerName method!");
+
         // Find and store names of all active servers of the provided type
         Set<String> activeServerNames = new HashSet<>();
         for (String serverName : activeServerInfo.keySet())
