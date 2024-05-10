@@ -149,7 +149,7 @@ public class ServerUtil
 
     private static void createNewServerFile(String result)
     {
-
+        MCMG_NetworkHandler.getLogger().info("ATTEMPTING TO CREATE NEW SERVER...");
     }
 
 }
