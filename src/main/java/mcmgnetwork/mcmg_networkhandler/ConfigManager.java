@@ -3,6 +3,7 @@ package mcmgnetwork.mcmg_networkhandler;
 import com.velocitypowered.api.plugin.PluginContainer;
 import dev.dejvokep.boostedyaml.YamlDocument;
 import dev.dejvokep.boostedyaml.dvs.versioning.BasicVersioning;
+import dev.dejvokep.boostedyaml.route.Route;
 import dev.dejvokep.boostedyaml.settings.dumper.DumperSettings;
 import dev.dejvokep.boostedyaml.settings.general.GeneralSettings;
 import dev.dejvokep.boostedyaml.settings.loader.LoaderSettings;
@@ -27,7 +28,7 @@ public class ConfigManager
                     GeneralSettings.DEFAULT,
                     LoaderSettings.builder().setAutoUpdate(true).build(), // Config file will update automatically without user interaction
                     DumperSettings.DEFAULT,
-                    UpdaterSettings.builder().setVersioning(new BasicVersioning("file-version"))    // Set route to config.yml for automatic versioning
+                    UpdaterSettings.builder().setVersioning(new BasicVersioning("config-version"))    // Set route to config.yml for automatic versioning
                             .setOptionSorting(UpdaterSettings.OptionSorting.SORT_BY_DEFAULTS).build()
             );
 
@@ -55,4 +56,11 @@ public class ConfigManager
         Optional<PluginContainer> container = MCMG_NetworkHandler.getProxy().getPluginManager().getPlugin("mcmg-network-handler");
         container.ifPresent(pluginContainer -> pluginContainer.getExecutorService().shutdown());
     }
+
+    /**
+     * @param serverType A server type recognized by the Velocity proxy server's MCMG_NetworkHandler plugin
+     * @return The maximum number of servers of the specified type allowed on the network
+     */
+    public static int getMaxServerTypeCount(String serverType)
+    { return Integer.parseInt(config.getString(Route.from("max-server-type-counts." + serverType))); }
 }
