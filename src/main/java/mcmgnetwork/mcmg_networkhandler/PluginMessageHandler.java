@@ -69,14 +69,23 @@ public class PluginMessageHandler
             // Attempt to identify a target server to transfer the player to
             String serverName = ServerUtil.findTransferableServerName(serverType);
 
+            //TODO remove debug tool
+            MCMG_NetworkHandler.getLogger().info("findTransferableServerName result: " + serverName);
+
             // If no transferable target server could be found, attempt to start a new one
             if (serverName.isEmpty())
+            {
                 serverStatus = ServerUtil.startNewServer(serverType);   // Store updated server status
+                //TODO remove debug tool
+                MCMG_NetworkHandler.getLogger().info("startNewServer result: " + serverStatus);
+            }
 
             // Send a response to the network
             sendLobbyTransferResponse(serverStatus, playerName, serverName);
+            //TODO remove debug tool
+            MCMG_NetworkHandler.getLogger().info("sendLobbyTransferResponse contents: " + serverStatus + ", " + playerName +
+                    ", " + serverName);
 
-            MCMG_NetworkHandler.getLogger().info("The MCMG_NetworkHandler is returning the requested server's status."); //TODO remove
         });
     }
 
@@ -97,5 +106,7 @@ public class PluginMessageHandler
         // Send response message
         for (RegisteredServer server : MCMG_NetworkHandler.getProxy().getAllServers())
             server.sendPluginMessage(MCMG_IDENTIFIER, out.toByteArray());
+
+        MCMG_NetworkHandler.getLogger().info("The MCMG_NetworkHandler is returning the requested server's status."); //TODO remove
     }
 }
