@@ -12,7 +12,7 @@ public class ChannelNames
     /**
      * The BungeeCord-supported plugin messaging channel used for proxy server interactions.
      */
-    public static final String PROXY = "BungeeCord";
+    public static final String BUNGEE_CORD = "BungeeCord";
 
     /**
      * The custom MCMG plugin messaging channel used for network server handling and interaction.

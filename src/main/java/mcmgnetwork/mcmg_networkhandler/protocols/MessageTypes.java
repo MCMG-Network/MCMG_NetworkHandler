@@ -2,7 +2,7 @@ package mcmgnetwork.mcmg_networkhandler.protocols;
 
 /**
  * Description: <p>
- *  Stores plugin messaging channel message types for easy reference across the plugin.
+ *  Stores plugin messaging channel message types for easy reference.
  *
  *  <p>Author(s): Miles Bovero
  *  <p>Date Created: 5/7/24
@@ -22,12 +22,12 @@ public class MessageTypes
     public static final String LOBBY_TRANSFER_REQUEST = "LobbyTransferRequest";
 
     /**
-     * The message sent by the proxy server in response to a LOBBY_TRANSFER_REQUEST, confirming whether or not to
-     * transfer the requesting player to another server.
+     * The message sent by the proxy server in response to a LOBBY_TRANSFER_REQUEST, providing further information and
+     * instructions to the requesting server plugin.
      * <p>
-     * Contains a boolean indicating whether or not an instance of the LOBBY_TRANSFER_REQUEST's specified server type
-     * is online, the player to be transferred, and - if any server of that type is online - the name of an online
-     * server to transfer the player to.
+     * Contains the status of the LOBBY_TRANSFER_REQUEST's specified server type ("transferable", "initializing", or
+     * "full"), the name of the player to be transferred, and - if any server of that type is online/transferable - the
+     * name of an online server to transfer the player to.
      */
     public static final String LOBBY_TRANSFER_RESPONSE = "LobbyTransferResponse";
 }

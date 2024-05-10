@@ -2,8 +2,8 @@ package mcmgnetwork.mcmg_networkhandler.protocols;
 
 /**
  * Description: <p>
- *  Stores MCMG network server type strings recognized by the Velocity proxy server's MCMG_NetworkHandler plugin and
- *  used for plugin messaging.
+ *  Stores MCMG network server types recognized by the Velocity proxy server's MCMG_NetworkHandler plugin; used for
+ *  handling plugin messages.
  *
  *  <p>Author(s): Miles Bovero
  *  <p>Date Created: 5/7/24
