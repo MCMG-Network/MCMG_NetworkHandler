@@ -80,6 +80,9 @@ public class MCMG_NetworkHandler {
         // Register the MCMG plugin messaging channel
         proxy.getChannelRegistrar().register(PluginMessageHandler.getMCMG_IDENTIFIER());
 
+        // Register event listeners
+        proxy.getEventManager().register(this, new PluginMessageHandler());
+
         logger.info("The MCMG_NetworkHandler plugin has successfully started!");
     }
 
