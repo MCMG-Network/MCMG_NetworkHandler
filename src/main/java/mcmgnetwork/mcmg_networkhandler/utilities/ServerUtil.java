@@ -137,6 +137,8 @@ public class ServerUtil
 
         // Iterate over active servers to try and find an open slot for a new server to exist
         int maxServerTypeCount = ConfigManager.getMaxServerTypeCount(serverType);
+        //TODO remove debug line
+        MCMG_NetworkHandler.getLogger().info(serverType + " is allowed " + maxServerTypeCount + " instances according to the config.");
         for (int i=0; i<maxServerTypeCount; i++)
         {
             String serverName = serverType + i;
