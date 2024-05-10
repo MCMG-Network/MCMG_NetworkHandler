@@ -5,6 +5,7 @@ import com.velocitypowered.api.proxy.server.ServerPing;
 import lombok.Getter;
 import mcmgnetwork.mcmg_networkhandler.ConfigManager;
 import mcmgnetwork.mcmg_networkhandler.MCMG_NetworkHandler;
+import mcmgnetwork.mcmg_networkhandler.protocols.ServerStatuses;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -102,7 +103,30 @@ public class ServerUtil
         return targetServer;
     }
 
-    public static String getNewServerName(String serverType)
+
+    public static String startNewServer(String serverType)
+    {
+        // Attempt to retrieve a new server instance's name
+        String result = getNewServerName(serverType);
+
+        // If there is no room for a new server of the specified type, return early
+        if (result.equals(ServerStatuses.FULL))
+            return result;
+
+        // Otherwise, create a new server with the new server name
+        createNewServerFile(result);
+
+        return ServerStatuses.INITIALIZING;
+    }
+
+    /**
+     * Checks if there is an available slot for a new server of the specified type and returns its name or the server
+     * type status.
+     * @param serverType The type of server to try to retrieve a new instance's name of
+     * @return The new server instance's name; or the FULL ServerStatus if there is no room for a new server of the
+     * specified type
+     */
+    private static String getNewServerName(String serverType)
     {
         // Find and store names of all active servers of the provided type
         Set<String> activeServerNames = new HashSet<>();
@@ -110,7 +134,7 @@ public class ServerUtil
             if (serverName.contains(serverType))
                 activeServerNames.add(serverName);
 
-        // Iterate through active servers to try and find an open slot for a new server to exist
+        // Iterate over active servers to try and find an open slot for a new server to exist
         int maxServerTypeCount = ConfigManager.getMaxServerTypeCount(serverType);
         for (int i=0; i<maxServerTypeCount; i++)
         {
@@ -119,7 +143,13 @@ public class ServerUtil
                 return serverName;
         }
 
-        // If the serverType instance count is full, return "full"
-        return "full";
+        // If all possible servers of the specified type are full, return status
+        return ServerStatuses.FULL;
     }
+
+    private static void createNewServerFile(String result)
+    {
+
+    }
+
 }
