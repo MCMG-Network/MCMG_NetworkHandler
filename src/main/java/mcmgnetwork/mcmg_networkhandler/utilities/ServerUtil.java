@@ -116,6 +116,7 @@ public class ServerUtil
         // Otherwise, create a new server with the new server name
         createNewServerFile(result);
 
+        //TODO change/remove
         return ServerStatuses.INITIALIZING;
     }
 

@@ -82,9 +82,9 @@ public class PluginMessageHandler
 
     /**
      * Sends a LOBBY_TRANSFER_RESPONSE with the provided parameters to the network using plugin messaging.
-     * @param serverStatus
-     * @param playerName
-     * @param serverName
+     * @param serverStatus The ServerStatus of the lobby server type provided in the request
+     * @param playerName The name of the player requested to be transferred
+     * @param serverName The server instance name to transfer the specified player to
      */
     private static void sendLobbyTransferResponse(String serverStatus, String playerName, String serverName)
     {
