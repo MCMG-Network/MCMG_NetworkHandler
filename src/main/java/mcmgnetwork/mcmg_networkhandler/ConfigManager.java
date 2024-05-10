@@ -62,5 +62,5 @@ public class ConfigManager
      * @return The maximum number of servers of the specified type allowed on the network
      */
     public static int getMaxServerTypeCount(String serverType)
-    { return Integer.parseInt(config.getString(Route.from("max-server-type-counts." + serverType))); }
+    { return config.getInt(Route.from("max-server-type-counts." + serverType)); }
 }
