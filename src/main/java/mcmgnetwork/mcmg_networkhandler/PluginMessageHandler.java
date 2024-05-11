@@ -70,7 +70,7 @@ public class PluginMessageHandler
             // Attempt to identify a target server to transfer the player to
             String serverName = ActiveServerUtil.findTransferableServerName(serverType);
 
-            // If no transferable target server could be found, attempt to start a new one
+            // If no transferable server could be found, attempt to start a new one
             if (serverName.isEmpty())
             {
                 serverStatus = ServerInitializeUtil.startNewServer(serverType);   // Store updated server status
