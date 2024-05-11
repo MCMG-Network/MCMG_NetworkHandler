@@ -16,6 +16,11 @@ public class ServerStatuses
     public static final String FULL = "full";
 
     /**
+     * Indicates that an attempted server creation/initialization failed
+     */
+    public static final String FAILED_INITIALIZE = "failed_initialization";
+
+    /**
      * Indicates that a server is actively booting up
      */
     public static final String INITIALIZING = "initializing";
