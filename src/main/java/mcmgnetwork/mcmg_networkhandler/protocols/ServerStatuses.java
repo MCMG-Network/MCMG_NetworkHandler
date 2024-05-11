@@ -18,7 +18,7 @@ public class ServerStatuses
     /**
      * Indicates that an attempted server creation/initialization failed
      */
-    public static final String FAILED_INITIALIZE = "failed_initialization";
+    public static final String FAILED_INITIALIZATION = "failed_initialization";
 
     /**
      * Indicates that a server is actively booting up
