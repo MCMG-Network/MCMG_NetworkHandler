@@ -12,7 +12,8 @@ import lombok.Getter;
 import mcmgnetwork.mcmg_networkhandler.protocols.ChannelNames;
 import mcmgnetwork.mcmg_networkhandler.protocols.MessageTypes;
 import mcmgnetwork.mcmg_networkhandler.protocols.ServerStatuses;
-import mcmgnetwork.mcmg_networkhandler.utilities.ServerUtil;
+import mcmgnetwork.mcmg_networkhandler.utilities.ActiveServerUtil;
+import mcmgnetwork.mcmg_networkhandler.utilities.ServerInitializeUtil;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -58,7 +59,7 @@ public class PluginMessageHandler
         String serverType = in.readUTF();
 
         // Get updated server information
-        CompletableFuture<Void> serverInfoFuture = ServerUtil.getServerInfo();
+        CompletableFuture<Void> serverInfoFuture = ActiveServerUtil.getServerInfo();
 
         // Wait for all server pings to complete, then run remaining code:
         serverInfoFuture.thenRun(() ->
@@ -67,12 +68,12 @@ public class PluginMessageHandler
             String serverStatus = ServerStatuses.TRANSFERABLE;
 
             // Attempt to identify a target server to transfer the player to
-            String serverName = ServerUtil.findTransferableServerName(serverType);
+            String serverName = ActiveServerUtil.findTransferableServerName(serverType);
 
             // If no transferable target server could be found, attempt to start a new one
             if (serverName.isEmpty())
             {
-                serverStatus = ServerUtil.startNewServer(serverType);   // Store updated server status
+                serverStatus = ServerInitializeUtil.startNewServer(serverType);   // Store updated server status
             }
 
             // Send a response to the network
