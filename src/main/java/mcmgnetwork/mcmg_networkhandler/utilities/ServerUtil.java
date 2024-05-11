@@ -106,14 +106,8 @@ public class ServerUtil
 
     public static String startNewServer(String serverType)
     {
-        //TODO remove debug line
-        MCMG_NetworkHandler.getLogger().info("Entering startNewServer method!");
-
         // Attempt to retrieve a new server instance's name
         String result = getNewServerName(serverType);
-        //TODO remove debug line
-        MCMG_NetworkHandler.getLogger().info("getNewServerName result: " + result);
-
 
         // If there is no room for a new server of the specified type, return early
         if (result.equals(ServerStatuses.FULL))
@@ -135,9 +129,6 @@ public class ServerUtil
      */
     private static String getNewServerName(String serverType)
     {
-        //TODO remove debug line
-        MCMG_NetworkHandler.getLogger().info("Entering getNewServerName method!");
-
         // Find and store names of all active servers of the provided type
         Set<String> activeServerNames = new HashSet<>();
         for (String serverName : activeServerInfo.keySet())
@@ -146,8 +137,6 @@ public class ServerUtil
 
         // Iterate over active servers to try and find an open slot for a new server to exist
         int maxServerTypeCount = ConfigManager.getMaxServerTypeCount(serverType);
-        //TODO remove debug line
-        MCMG_NetworkHandler.getLogger().info(serverType + " is allowed " + maxServerTypeCount + " instances according to the config.");
         for (int i=0; i<maxServerTypeCount; i++)
         {
             String serverName = serverType + i;
