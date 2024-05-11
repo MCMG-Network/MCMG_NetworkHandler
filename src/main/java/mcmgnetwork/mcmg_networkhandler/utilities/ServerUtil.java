@@ -7,6 +7,8 @@ import mcmgnetwork.mcmg_networkhandler.ConfigManager;
 import mcmgnetwork.mcmg_networkhandler.MCMG_NetworkHandler;
 import mcmgnetwork.mcmg_networkhandler.protocols.ServerStatuses;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
@@ -24,7 +26,6 @@ public class ServerUtil
     /**
      * A map of the names of active servers and the ServerInfoPackage corresponding to that server
      */
-    @Getter
     private static final HashMap<String, ServerInfoPackage> activeServerInfo = new HashMap<>();
 
     /**
@@ -107,25 +108,25 @@ public class ServerUtil
     public static String startNewServer(String serverType)
     {
         // Attempt to retrieve a new server instance's name
-        String result = getNewServerName(serverType);
+        String newServerName = getNewServerName(serverType);
 
         // If there is no room for a new server of the specified type, return early
-        if (result.equals(ServerStatuses.FULL))
-            return result;
+        if (newServerName.isEmpty())
+            return ServerStatuses.FULL;
 
         // Otherwise, create a new server with the new server name
-        createNewServerFile(result);
+        createNewServerFile(newServerName);
 
         //TODO change/remove
         return ServerStatuses.INITIALIZING;
     }
 
     /**
-     * Checks if there is an available slot for a new server of the specified type and returns its name or the server
-     * type status.
+     * Checks if there is an available slot for a new server of the specified type and returns its name or an empty
+     * string if no slot is available.
      * @param serverType The type of server to try to retrieve a new instance's name of
-     * @return The new server instance's name; or the FULL ServerStatus if there is no room for a new server of the
-     * specified type
+     * @return The new server instance's name; or an empty string if there is no room for a new server of the specified
+     * type
      */
     private static String getNewServerName(String serverType)
     {
@@ -144,13 +145,15 @@ public class ServerUtil
                 return serverName;
         }
 
-        // If all possible servers of the specified type are full, return status
-        return ServerStatuses.FULL;
+        // If all possible servers of the specified type are full, return empty string
+        return "";
     }
 
-    private static void createNewServerFile(String result)
+    //TODO method header
+    private static void createNewServerFile(String newServerName)
     {
-        MCMG_NetworkHandler.getLogger().info("ATTEMPTING TO CREATE NEW SERVER...");
+        Path currentDirectory = Paths.get("").toAbsolutePath(); // Get the current working directory of the Java process
+        MCMG_NetworkHandler.getLogger().info("Server creation file directory: " + currentDirectory.toString());
     }
 
 }
