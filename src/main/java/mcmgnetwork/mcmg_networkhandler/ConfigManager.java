@@ -15,6 +15,14 @@ import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Optional;
 
+/**
+ * Description: <p>
+ *  Manages the configuration of the MCMG_NetworkHandler plugin, including the maximum number of server instances
+ *  allowed on the network and the port numbers of each server instance.
+ *
+ *  <p>Author(s): Miles Bovero
+ *  <p>Date Created: 5/10/24
+ */
 public class ConfigManager
 {
     private static YamlDocument config;
@@ -63,4 +71,11 @@ public class ConfigManager
      */
     public static int getMaxServerTypeCount(String serverType)
     { return Integer.parseInt(config.getString(Route.fromString("max-server-type-counts." + serverType))); }
+
+    /**
+     * @param serverName The name of the server type instance to retrieve the port of
+     * @return The port number of the specified server type instance as a string
+     */
+    public static String getServerPort(String serverName)
+    { return config.getString(Route.fromString("server-port." + serverName)); }
 }
