@@ -4,10 +4,9 @@ import mcmgnetwork.mcmg_networkhandler.ConfigManager;
 import mcmgnetwork.mcmg_networkhandler.MCMG_NetworkHandler;
 import mcmgnetwork.mcmg_networkhandler.protocols.ServerStatuses;
 
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.Files;
+import java.io.*;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
@@ -84,11 +83,18 @@ public class ServerInitializeUtil
         {
             Path serverTypePath = Paths.get("server-instances", serverType);
             copyServerTemplateFolder(serverTypePath, newServerName);
+            MCMG_NetworkHandler.getLogger().info("Completed copying!"); //TODO remove
             updateNewServerProperties(serverTypePath, newServerName);
+            MCMG_NetworkHandler.getLogger().info("Completed updating properties!"); //TODO remove
             runNewServer(serverTypePath, newServerName);
+            MCMG_NetworkHandler.getLogger().info("Completed running server!"); //TODO remove
         } catch (IOException ex)
         {
-            MCMG_NetworkHandler.getLogger().error("An IOException occurred while creating a new server: {}", ex.getMessage());
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            ex.printStackTrace(pw);
+
+            MCMG_NetworkHandler.getLogger().error("An exception occurred while creating a new server: {}", sw);
             return false;
         }
 
@@ -110,11 +116,28 @@ public class ServerInitializeUtil
         Path source = serverTypePath.resolve("template");
         Path destination = serverTypePath.resolve("active-servers").resolve(newServerName);
 
-        // Create the new server folder directory if it doesn't exist
-        Files.createDirectories(destination);
-
         // Copy the contents of the source folder to the destination folder
-        Files.copy(source, destination);
+        try { copyDirectory(source, destination); }
+        catch (IOException ex) { throw new IOException(ex); }
+    }
+
+    //TODO comment header
+    public static void copyDirectory(Path source, Path target) throws IOException
+    {
+        Files.walkFileTree(source, new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+                Path targetDir = target.resolve(source.relativize(dir));
+                Files.createDirectories(targetDir);
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                Files.copy(file, target.resolve(source.relativize(file)), StandardCopyOption.REPLACE_EXISTING);
+                return FileVisitResult.CONTINUE;
+            }
+        });
     }
 
     /**
@@ -152,11 +175,26 @@ public class ServerInitializeUtil
      */
     private static void runNewServer(Path serverTypePath, String newServerName) throws IOException
     {
-        // Use ProcessBuilder to run the Minecraft server executable
-        //TODO make private fields to specify min/max RAM
-        ProcessBuilder builder = new ProcessBuilder("java", "-Xmx1024M", "-Xms512M", "-jar", "paper.jar", "--nogui");
-        builder.directory(serverTypePath.resolve("active-servers").resolve(newServerName).toFile());
-        builder.redirectErrorStream(true);
-        Process process = builder.start();
+        // Define the content of the batch file
+        String batchContent = "@echo off\n" +
+                "java -Xmx1024M -Xms512M -jar paper.jar --nogui\n" +
+                "PAUSE";
+
+        // Construct the path to the batch file
+        Path batchFilePath = serverTypePath.resolve("active-servers")
+                .resolve(newServerName)
+                .resolve("run.bat");
+
+        // Write the batch content to the file
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(batchFilePath.toFile())))
+        { writer.write(batchContent); }
+
+        MCMG_NetworkHandler.getLogger().info("Batch file created: " + batchFilePath);
+
+        // Execute the batch file
+        ProcessBuilder builder = new ProcessBuilder("cmd", "/c", "start", "cmd", "/c", batchFilePath.toString());
+        builder.start();
+
+        MCMG_NetworkHandler.getLogger().info("Batch file executed.");
     }
 }
