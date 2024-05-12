@@ -50,7 +50,8 @@ public class ServerInitializeUtil
 
     /**
      * Attempts to create and initialize a new server of the specified type.
-     * @param serverType The type of server to be started
+     * @param serverType A server type (recognized by the Velocity proxy server's MCMG_NetworkHandler plugin) of which a
+     *                   new instance will be started
      * @return The server status of the server type instance that was requested to start
      */
     public static String startNewServer(String serverType)
@@ -81,7 +82,8 @@ public class ServerInitializeUtil
     /**
      * Checks if there is an available slot for a new server of the specified type and returns its name or an empty
      * string if no slot is available.
-     * @param serverType The type of server to try to retrieve a new instance's name of
+     * @param serverType A server type (recognized by the Velocity proxy server's MCMG_NetworkHandler plugin) to try to
+     *                   retrieve a new instance's name of
      * @return The new server instance's name; or an empty string if there is no room for a new server of the specified
      * type
      */
@@ -109,7 +111,8 @@ public class ServerInitializeUtil
     /**
      * Creates a new server directory with the necessary files, updates its information according to the provided
      * parameters, and starts the new server.
-     * @param serverType The type of server to be created and initialized
+     * @param serverType A server type (recognized by the Velocity proxy server's MCMG_NetworkHandler plugin) of which
+     *                   a new instance will be created and initialized
      * @param newServerName The name of the new server
      * @return Whether or not the new server initialization completed without IOExceptions
      */
@@ -142,7 +145,7 @@ public class ServerInitializeUtil
     /**
      * Copies contents of an existing server template folder (at the specified serverTypePath) to another folder (given
      * the name of the specified newServerName) within the "active-servers" directory.
-     * @param serverTypePath The path, ending in the requested serverType, that leads to a subdirectory containing
+     * @param serverTypePath The path, ending in the requested server type, that leads to a subdirectory containing
      *                       startup files for that serverType
      * @param newServerName The name of the new server to be created; will be the name of the new server folder
      * @throws IOException Indicates an I/O error occurred while accessing/copying files
@@ -186,7 +189,7 @@ public class ServerInitializeUtil
      * Updates the "server.properties" file of the newly created server to operate on the correct port.
      * <p>
      * Requires that copyTemplateFolder() has been successfully executed with the same provided parameters.
-     * @param serverTypePath The path, ending in the requested serverType, that leads to a subdirectory containing
+     * @param serverTypePath The path, ending in the requested server type, that leads to a subdirectory containing
      *                       startup files for that serverType
      * @param newServerName The name of the newly created server
      * @throws IOException Indicates an I/O error occurred while accessing/editing files
@@ -210,8 +213,8 @@ public class ServerInitializeUtil
      * <p>
      * Requires that both copyTemplateFolder() and updateNewServerProperties() have been successfully executed with the
      * same provided parameters.
-     * @param serverTypePath The path, ending in the requested serverType, that leads to a subdirectory containing
-     *                       startup files for that serverType
+     * @param serverTypePath The path, ending in the requested server type, that leads to a subdirectory containing
+     *                       startup files for that server type
      * @param newServerName The name of the newly created server
      * @throws IOException Indicates an I/O error occurred while accessing/executing files
      */
