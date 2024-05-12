@@ -26,6 +26,11 @@ public class ServerInitializeUtil
 {
 
     /**
+     * Determines whether or not new server instances' consoles will close after termination
+     */
+    private static final boolean keepConsoleOpen = false;
+
+    /**
      * A set of names of server types that are actively being initialized; used to prevent initialization overlap/spam
      */
     private static final Set<String> initializingServers = new HashSet<>();
@@ -205,8 +210,9 @@ public class ServerInitializeUtil
         String batchContent = "@setlocal enableextensions\n" +
                 "@cd /d \"%~dp0\"\n" +
                 "@echo off\n" +
-                "java -Xmx1024M -Xms512M -jar paper.jar --nogui\n" +
-                "PAUSE";
+                "java -Xmx1024M -Xms512M -jar paper.jar --nogui\n";
+        if (keepConsoleOpen)
+            batchContent += "PAUSE";
 
         // Construct the path to the batch file
         Path batchFilePath = serverTypePath.resolve("active-servers")
