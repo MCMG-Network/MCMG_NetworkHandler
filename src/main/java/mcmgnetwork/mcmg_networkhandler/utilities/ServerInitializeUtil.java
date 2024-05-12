@@ -176,7 +176,9 @@ public class ServerInitializeUtil
     private static void runNewServer(Path serverTypePath, String newServerName) throws IOException
     {
         // Define the content of the batch file
-        String batchContent = "@echo off\n" +
+        String batchContent = "@setlocal enableextensions\n" +
+                "@cd /d \"%~dp0\"\n" +
+                "@echo off\n" +
                 "java -Xmx1024M -Xms512M -jar paper.jar --nogui\n" +
                 "PAUSE";
 
