@@ -196,15 +196,19 @@ public class ServerInitializeUtil
      */
     private static void setNewServerPort(Path serverTypePath, String newServerName) throws IOException
     {
+        // Retrieve/store the provided server's port
+        String serverPort = ConfigManager.getServerPort(newServerName);
+
         // Initialize path to new server's "server.properties" file
         Path serverPropertiesFile = serverTypePath.resolve("active-servers")
                 .resolve(newServerName)
                 .resolve("server.properties");
+
         // Update server port properties
         Properties properties = new Properties();
         properties.load(Files.newInputStream(serverPropertiesFile));
-        properties.setProperty("server-port", "25510"); //TODO change these to read from config
-        properties.setProperty("query.port", "25510");
+        properties.setProperty("server-port", serverPort);
+        properties.setProperty("query.port", serverPort);
         properties.store(Files.newOutputStream(serverPropertiesFile), null);
     }
 
