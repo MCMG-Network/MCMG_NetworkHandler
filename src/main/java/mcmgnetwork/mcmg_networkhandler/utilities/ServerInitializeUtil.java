@@ -10,11 +10,14 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Description: <p>
  *  A utility class holding static data and functions that handle specific actions and information regarding the
- *  creation/initialization of network servers.
+ *  creation/initialization of new network servers.
  *
  *  <p>Author(s): Miles Bovero
  *  <p>Date Created: 5/11/24
@@ -22,9 +25,29 @@ import java.util.Set;
 public class ServerInitializeUtil
 {
 
+    /**
+     * A set of names of server types that are actively being initialized; used to prevent initialization overlap/spam
+     */
+    private static final Set<String> initializingServers = new HashSet<>();
+
+    /**
+     * Handles the tracking of initializing servers and the time allotted for new server initialization
+     */
+    private static final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+
+    /**
+     * The number of seconds given for a server to initialize; any duplicate server creation requests are ignored
+     * during this time
+     */
+    private static final int initializationTime = 10;
+
     //TODO comment header
     public static String startNewServer(String serverType)
     {
+        // If the requested server type already has a new server being initialized, return status early
+        if (initializingServers.contains(serverType))
+            return ServerStatuses.INITIALIZING;
+
         // Attempt to retrieve a new server instance's name
         String newServerName = getNewServerName(serverType);
         // If there is no room for a new server of the specified type, return early
@@ -35,7 +58,12 @@ public class ServerInitializeUtil
         boolean successfulStart = initializeNewServer(serverType, newServerName);
 
         if (successfulStart)
-            return ServerStatuses.INITIALIZING;
+        {
+            // Server successfully began initializing; track it to prevent duplicate start requests
+            initializingServers.add(serverType);
+            executor.schedule(() -> initializingServers.remove(serverType), initializationTime, TimeUnit.SECONDS);
+            return ServerStatuses.BEGAN_INITIALIZATION;
+        }
         else
             return ServerStatuses.FAILED_INITIALIZATION;
     }
@@ -82,14 +110,13 @@ public class ServerInitializeUtil
         try
         {
             Path serverTypePath = Paths.get("server-instances", serverType);
+
             copyServerTemplateFolder(serverTypePath, newServerName);
-            MCMG_NetworkHandler.getLogger().info("Completed copying!"); //TODO remove
             updateNewServerProperties(serverTypePath, newServerName);
-            MCMG_NetworkHandler.getLogger().info("Completed updating properties!"); //TODO remove
             runNewServer(serverTypePath, newServerName);
-            MCMG_NetworkHandler.getLogger().info("Completed running server!"); //TODO remove
         } catch (IOException ex)
         {
+            // Get the stack trace info as a string
             StringWriter sw = new StringWriter();
             PrintWriter pw = new PrintWriter(sw);
             ex.printStackTrace(pw);
@@ -98,7 +125,7 @@ public class ServerInitializeUtil
             return false;
         }
 
-        MCMG_NetworkHandler.getLogger().info("A new server, " + newServerName + ", was successfully created!");
+        MCMG_NetworkHandler.getLogger().info("A new server, " + newServerName + ", was successfully created and started!");
         return true;
     }
 
@@ -164,7 +191,7 @@ public class ServerInitializeUtil
     }
 
     /**
-     * Executes the Minecraft server .jar file to run the newly created server.
+     * Creates and executes a batch file that runs the server .jar file in the specified path.
      * <p>
      * Requires that both copyTemplateFolder() and updateNewServerProperties() have been successfully executed with the
      * same provided parameters.
@@ -191,12 +218,8 @@ public class ServerInitializeUtil
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(batchFilePath.toFile())))
         { writer.write(batchContent); }
 
-        MCMG_NetworkHandler.getLogger().info("Batch file created: " + batchFilePath);
-
         // Execute the batch file
         ProcessBuilder builder = new ProcessBuilder("cmd", "/c", "start", "cmd", "/c", batchFilePath.toString());
         builder.start();
-
-        MCMG_NetworkHandler.getLogger().info("Batch file executed.");
     }
 }
