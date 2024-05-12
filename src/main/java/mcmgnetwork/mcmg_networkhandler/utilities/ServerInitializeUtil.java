@@ -26,7 +26,8 @@ public class ServerInitializeUtil
 {
 
     /**
-     * Determines whether or not new server instances' consoles will close after termination
+     * Determines whether or not new server instances' consoles will stay open after termination; helpful for
+     * troubleshooting
      */
     private static final boolean keepConsoleOpen = false;
 
@@ -46,7 +47,12 @@ public class ServerInitializeUtil
      */
     private static final int initializationTime = 10;
 
-    //TODO comment header
+
+    /**
+     * Attempts to create and initialize a new server of the specified type.
+     * @param serverType The type of server to be started
+     * @return The server status of the server type instance that was requested to start
+     */
     public static String startNewServer(String serverType)
     {
         // If the requested server type already has a new server being initialized, return status early
@@ -116,7 +122,7 @@ public class ServerInitializeUtil
             Path serverTypePath = Paths.get("server-instances", serverType);
 
             copyServerTemplateFolder(serverTypePath, newServerName);
-            updateNewServerProperties(serverTypePath, newServerName);
+            setNewServerPort(serverTypePath, newServerName);
             runNewServer(serverTypePath, newServerName);
         } catch (IOException ex)
         {
@@ -129,7 +135,7 @@ public class ServerInitializeUtil
             return false;
         }
 
-        MCMG_NetworkHandler.getLogger().info("A new server, " + newServerName + ", was successfully created and started!");
+        MCMG_NetworkHandler.getLogger().info("A new server, " + newServerName + ", was successfully created and is initializing!");
         return true;
     }
 
@@ -152,7 +158,12 @@ public class ServerInitializeUtil
         catch (IOException ex) { throw new IOException(ex); }
     }
 
-    //TODO comment header
+    /**
+     * Recursively copies all files and directories from the source directory to the target directory.
+     * @param source The path to the source directory to copy
+     * @param target The path to the target directory where the contents will be copied
+     * @throws IOException If an I/O error occurs during the copying process
+     */
     public static void copyDirectory(Path source, Path target) throws IOException
     {
         Files.walkFileTree(source, new SimpleFileVisitor<Path>() {
@@ -180,7 +191,7 @@ public class ServerInitializeUtil
      * @param newServerName The name of the newly created server
      * @throws IOException Indicates an I/O error occurred while accessing/editing files
      */
-    private static void updateNewServerProperties(Path serverTypePath, String newServerName) throws IOException
+    private static void setNewServerPort(Path serverTypePath, String newServerName) throws IOException
     {
         // Initialize path to new server's "server.properties" file
         Path serverPropertiesFile = serverTypePath.resolve("active-servers")
