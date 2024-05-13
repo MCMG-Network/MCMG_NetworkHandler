@@ -133,7 +133,7 @@ public class ServerInitializeUtil
             PrintWriter pw = new PrintWriter(sw);
             ex.printStackTrace(pw);
 
-            MCMG_NetworkHandler.getLogger().error("An exception occurred while creating a new server: {}", sw);
+            MCMG_NetworkHandler.getLogger().error("An exception occurred while creating the {} server: {}", newServerName, sw);
             return false;
         }
 
