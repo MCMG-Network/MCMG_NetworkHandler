@@ -8,7 +8,7 @@ import com.velocitypowered.api.proxy.ServerConnection;
 import com.velocitypowered.api.proxy.messages.MinecraftChannelIdentifier;
 import lombok.Getter;
 import mcmgnetwork.mcmg_networkhandler.MCMG_NetworkHandler;
-import mcmgnetwork.mcmg_networkhandler.ServerTransferHandler;
+import mcmgnetwork.mcmg_networkhandler.LobbyTransferHandler;
 import mcmgnetwork.mcmg_networkhandler.protocols.ChannelNames;
 import mcmgnetwork.mcmg_networkhandler.protocols.MessageTypes;
 
@@ -44,6 +44,6 @@ public class PluginMessageHandler
 
         // Only handle specific sub-channels / message types
         if (subChannel.equals(MessageTypes.LOBBY_TRANSFER_REQUEST))
-            ServerTransferHandler.handleLobbyTransferRequest(in);
+            LobbyTransferHandler.handleLobbyTransferRequest(in);
     }
 }

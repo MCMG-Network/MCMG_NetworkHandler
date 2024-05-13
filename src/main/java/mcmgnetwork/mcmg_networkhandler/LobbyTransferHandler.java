@@ -21,7 +21,7 @@ import java.util.concurrent.CompletableFuture;
  *  <p>Author(s): Miles Bovero
  *  <p>Date Created: 5/12/24
  */
-public class ServerTransferHandler
+public class LobbyTransferHandler
 {
     /**
      * Provided data containing a player name and server type, this method determines if there is a transferable lobby
