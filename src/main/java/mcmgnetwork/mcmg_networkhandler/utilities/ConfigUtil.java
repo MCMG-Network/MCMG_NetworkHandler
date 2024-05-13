@@ -28,6 +28,10 @@ public class ConfigUtil
 {
     private static YamlDocument config;
 
+    /**
+     * Initializes the Boosted YAML config for this plugin, providing access to the config's contents/data.
+     * @param dataDirectory The directory to this plugin's data folder
+     */
     public static void initializeConfig(Path dataDirectory)
     {
         try
