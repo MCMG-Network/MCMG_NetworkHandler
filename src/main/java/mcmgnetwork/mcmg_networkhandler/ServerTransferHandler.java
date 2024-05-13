@@ -36,7 +36,7 @@ public class ServerTransferHandler
         String playerName = in.readUTF();
         String serverType = in.readUTF();
 
-        // Get updated server information
+        // Get updated information on all network servers
         CompletableFuture<Void> serverInfoFuture = ActiveServerUtil.getServerInfo();
 
         // Wait for all server pings to complete, then run remaining code:
