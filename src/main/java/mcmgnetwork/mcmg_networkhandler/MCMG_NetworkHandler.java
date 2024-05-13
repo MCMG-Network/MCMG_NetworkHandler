@@ -7,6 +7,7 @@ import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.ProxyServer;
 import lombok.Getter;
+import mcmgnetwork.mcmg_networkhandler.listeners.MainHubInitializer;
 import mcmgnetwork.mcmg_networkhandler.listeners.PluginMessageHandler;
 import mcmgnetwork.mcmg_networkhandler.utilities.ConfigUtil;
 import org.slf4j.Logger;
@@ -53,6 +54,7 @@ public class MCMG_NetworkHandler {
 
         // Register event listeners
         proxy.getEventManager().register(this, new PluginMessageHandler());
+        proxy.getEventManager().register(this, new MainHubInitializer());
 
         logger.info("The MCMG_NetworkHandler plugin has successfully started!");
     }
