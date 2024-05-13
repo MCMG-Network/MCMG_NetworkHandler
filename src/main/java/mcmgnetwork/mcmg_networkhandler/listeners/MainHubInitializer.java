@@ -8,9 +8,21 @@ import mcmgnetwork.mcmg_networkhandler.utilities.ServerInitializeUtil;
 
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * Description: <p>
+ *  Handles the initialization of new main_hub servers when all main_hub server instances are currently inactive or full.
+ *
+ *  <p>Author(s): Miles Bovero
+ *  <p>Date Created: 5/12/24
+ */
 public class MainHubInitializer
 {
 
+    /**
+     * Listens for DisconnectEvents, and when an event with a PRE_SERVER_JOIN LoginStatus is detected, checks if a new
+     * main_hub server instance should be made.
+     * @param e The DisconnectEvent to be handled
+     */
     @Subscribe
     public void onDisconnectEvent(DisconnectEvent e)
     {
@@ -18,7 +30,10 @@ public class MainHubInitializer
             initializeNewMainHubServer();
     }
 
-
+    /**
+     * Pings network servers to see if there are no active main_hub servers or if all main_hub servers are full. If so,
+     * an attempt to start a new main_hub server instance is made.
+     */
     private void initializeNewMainHubServer()
     {
         // Get updated information on all network servers
