@@ -50,9 +50,7 @@ public class ServerTransferHandler
 
             // If no transferable server could be found, attempt to start a new one
             if (serverName.isEmpty())
-            {
                 serverStatus = ServerInitializeUtil.startNewServer(serverType);   // Store updated server status
-            }
 
             // Send a response to the network
             sendLobbyTransferResponse(serverStatus, playerName, serverName);
