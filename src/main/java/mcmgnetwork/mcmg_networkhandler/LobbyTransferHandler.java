@@ -37,7 +37,7 @@ public class LobbyTransferHandler
         String serverType = in.readUTF();
 
         // Get updated information on all network servers
-        CompletableFuture<Void> serverInfoFuture = ActiveServerUtil.getServerInfo();
+        CompletableFuture<Void> serverInfoFuture = ActiveServerUtil.getServerInfoFuture();
 
         // Wait for all server pings to complete, then run remaining code:
         serverInfoFuture.thenRun(() ->

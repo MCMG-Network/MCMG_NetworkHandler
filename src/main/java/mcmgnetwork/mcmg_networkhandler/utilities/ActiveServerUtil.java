@@ -31,7 +31,7 @@ public class ActiveServerUtil
      * @return a CompletableFuture that completes when all ping operations have completed, allowing other methods
      * to wait on this method's completion
      */
-    public static CompletableFuture<Void> getServerInfo()
+    public static CompletableFuture<Void> getServerInfoFuture()
     {
         // Initialize a list to hold/track all server ping results
         List<CompletableFuture<ServerPing>> pingResults = new ArrayList<>();
