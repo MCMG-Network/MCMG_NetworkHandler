@@ -25,9 +25,9 @@ public class MessageTypes
      * The message sent by the proxy server in response to a LOBBY_TRANSFER_REQUEST, providing further information and
      * instructions to the requesting server plugin.
      * <p>
-     * Contains the status of the LOBBY_TRANSFER_REQUEST's specified server type ("transferable", "initializing", or
-     * "full"), the name of the player to be transferred, and - if any server of that type is online/transferable - the
-     * name of an online server to transfer the player to.
+     * Contains the status of the LOBBY_TRANSFER_REQUEST's specified server type ("transferable", "initializing", etc.),
+     * the name of the player to be transferred, and - if any server of that type is online/transferable - the name of
+     * an online server to transfer the player to.
      */
     public static final String LOBBY_TRANSFER_RESPONSE = "LobbyTransferResponse";
 }
