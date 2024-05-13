@@ -1,4 +1,4 @@
-package mcmgnetwork.mcmg_networkhandler;
+package mcmgnetwork.mcmg_networkhandler.listeners;
 
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
@@ -7,6 +7,8 @@ import com.velocitypowered.api.event.connection.PluginMessageEvent;
 import com.velocitypowered.api.proxy.ServerConnection;
 import com.velocitypowered.api.proxy.messages.MinecraftChannelIdentifier;
 import lombok.Getter;
+import mcmgnetwork.mcmg_networkhandler.MCMG_NetworkHandler;
+import mcmgnetwork.mcmg_networkhandler.ServerTransferHandler;
 import mcmgnetwork.mcmg_networkhandler.protocols.ChannelNames;
 import mcmgnetwork.mcmg_networkhandler.protocols.MessageTypes;
 

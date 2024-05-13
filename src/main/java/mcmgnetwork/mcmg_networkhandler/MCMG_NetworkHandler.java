@@ -7,6 +7,7 @@ import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.ProxyServer;
 import lombok.Getter;
+import mcmgnetwork.mcmg_networkhandler.listeners.PluginMessageHandler;
 import mcmgnetwork.mcmg_networkhandler.utilities.ConfigUtil;
 import org.slf4j.Logger;
 
