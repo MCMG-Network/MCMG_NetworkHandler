@@ -1,4 +1,4 @@
-package mcmgnetwork.mcmg_networkhandler;
+package mcmgnetwork.mcmg_networkhandler.utilities;
 
 import com.velocitypowered.api.plugin.PluginContainer;
 import dev.dejvokep.boostedyaml.YamlDocument;
@@ -8,6 +8,7 @@ import dev.dejvokep.boostedyaml.settings.dumper.DumperSettings;
 import dev.dejvokep.boostedyaml.settings.general.GeneralSettings;
 import dev.dejvokep.boostedyaml.settings.loader.LoaderSettings;
 import dev.dejvokep.boostedyaml.settings.updater.UpdaterSettings;
+import mcmgnetwork.mcmg_networkhandler.MCMG_NetworkHandler;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,7 +24,7 @@ import java.util.Optional;
  *  <p>Author(s): Miles Bovero
  *  <p>Date Created: 5/10/24
  */
-public class ConfigManager
+public class ConfigUtil
 {
     private static YamlDocument config;
 
@@ -32,7 +33,7 @@ public class ConfigManager
         try
         {
             config = YamlDocument.create(new File(dataDirectory.toFile(), "config.yml"),
-                    Objects.requireNonNull(ConfigManager.class.getResourceAsStream("/config.yml")),  // Get config from resources folder & populate defaults into config file
+                    Objects.requireNonNull(ConfigUtil.class.getResourceAsStream("/config.yml")),  // Get config from resources folder & populate defaults into config file
                     GeneralSettings.DEFAULT,
                     LoaderSettings.builder().setAutoUpdate(true).build(), // Config file will update automatically without user interaction
                     DumperSettings.DEFAULT,
