@@ -14,7 +14,7 @@ import mcmgnetwork.mcmg_networkhandler.protocols.MessageTypes;
 
 /**
  * Description: <p>
- *  Handles all incoming and outgoing plugin messages for the network.
+ *  Handles all incoming and outgoing plugin messages heard by this plugin.
  *
  *  <p>Author(s): Miles Bovero
  *  <p>Date Created: 5/9/24
@@ -26,7 +26,7 @@ public class PluginMessageHandler
 
     /**
      * Listens for incoming plugin messages, identifies recognized messages, and handles them.
-     * @param e The event indicating an incoming plugin message; contains plugin message data
+     * @param e The event indicating an incoming plugin message has arrived; contains plugin message data
      */
     @Subscribe
     public void onPluginMessageFromPlugin(PluginMessageEvent e)
