@@ -63,7 +63,10 @@ public class ServerInitializeUtil
         String newServerName = getNewServerName(serverType);
         // If there is no room for a new server of the specified type, return early
         if (newServerName.isEmpty())
+        {
+            MCMG_NetworkHandler.getLogger().warn("A new {} server could not be started because all its server instance slots are full!", serverType);
             return ServerStatuses.FULL;
+        }
 
         // Otherwise, beginning new server initialization; track it to prevent duplicate start requests
         initializingServers.add(serverType);
