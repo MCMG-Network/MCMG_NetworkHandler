@@ -1,6 +1,5 @@
 package mcmgnetwork.mcmg_networkhandler.utilities;
 
-import mcmgnetwork.mcmg_networkhandler.ConfigManager;
 import mcmgnetwork.mcmg_networkhandler.MCMG_NetworkHandler;
 import mcmgnetwork.mcmg_networkhandler.protocols.ServerStatuses;
 
@@ -96,7 +95,7 @@ public class ServerInitializeUtil
                 activeServerNames.add(serverName);
 
         // Iterate over active servers to try and find an open slot for a new server to exist
-        int maxServerTypeCount = ConfigManager.getMaxServerTypeCount(serverType);
+        int maxServerTypeCount = ConfigUtil.getMaxServerTypeCount(serverType);
         for (int i=0; i<maxServerTypeCount; i++)
         {
             String serverName = serverType + i;
@@ -197,7 +196,7 @@ public class ServerInitializeUtil
     private static void setNewServerPort(Path serverTypePath, String newServerName) throws IOException
     {
         // Retrieve/store the provided server's port
-        String serverPort = ConfigManager.getServerPort(newServerName);
+        String serverPort = ConfigUtil.getServerPort(newServerName);
 
         // Initialize path to new server's "server.properties" file
         Path serverPropertiesFile = serverTypePath.resolve("active-servers")

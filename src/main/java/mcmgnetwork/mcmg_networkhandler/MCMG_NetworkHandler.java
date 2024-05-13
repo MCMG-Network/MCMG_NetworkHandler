@@ -7,6 +7,7 @@ import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.ProxyServer;
 import lombok.Getter;
+import mcmgnetwork.mcmg_networkhandler.utilities.ConfigUtil;
 import org.slf4j.Logger;
 
 import java.nio.file.Path;
@@ -35,7 +36,7 @@ public class MCMG_NetworkHandler {
         MCMG_NetworkHandler.proxy = proxy;
         MCMG_NetworkHandler.logger = logger;
 
-        ConfigManager.initializeConfig(dataDirectory);
+        ConfigUtil.initializeConfig(dataDirectory);
     }
 
     /**
