@@ -60,17 +60,17 @@ public class ServerInitializeUtil
         if (initializingServers.contains(serverType))
             return ServerStatuses.INITIALIZING;
 
-        // Beginning new server initialization; track it to prevent duplicate start requests
-        initializingServers.add(serverType);
-        executor.schedule(() -> initializingServers.remove(serverType), initializationTime, TimeUnit.SECONDS);
-
         // Attempt to retrieve a new server instance's name
         String newServerName = getNewServerName(serverType);
         // If there is no room for a new server of the specified type, return early
         if (newServerName.isEmpty())
             return ServerStatuses.FULL;
 
-        // Otherwise, attempt to initialize a new server
+        // Otherwise, beginning new server initialization; track it to prevent duplicate start requests
+        initializingServers.add(serverType);
+        executor.schedule(() -> initializingServers.remove(serverType), initializationTime, TimeUnit.SECONDS);
+
+        // Attempt to initialize a new server
         boolean successfulStart = initializeNewServer(serverType, newServerName);
 
         if (successfulStart)
