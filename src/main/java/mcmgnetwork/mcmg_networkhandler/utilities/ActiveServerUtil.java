@@ -5,6 +5,7 @@ import com.velocitypowered.api.proxy.server.ServerPing;
 import lombok.Getter;
 import mcmgnetwork.mcmg_networkhandler.MCMG_NetworkHandler;
 
+import java.security.InvalidParameterException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
@@ -71,6 +72,8 @@ public class ActiveServerUtil
     }
 
     /**
+     * For accurate results, should only be executed by a thenRun(() -> ) method call on the CompletableFuture returned
+     * by the ActiveServerUtil getServerInfoFuture method.
      * @param serverType The type of server to be targeted
      * @return The name of a server of the specified type (if one was found). If multiple valid servers are found, the
      * name of the server with the most online players (and room for more) is returned. If no valid servers are found,
@@ -99,5 +102,40 @@ public class ActiveServerUtil
         }
 
         return targetServer;
+    }
+
+    /**
+     * For accurate results, should only be executed by a thenRun(() -> ) method call on the CompletableFuture returned
+     * by the ActiveServerUtil getServerInfoFuture method.
+     * @param n The number of server names to return
+     * @param serverType The type of server to consider while evaluating the return value
+     * @return The n server names (of the provided server type) ending in the highest numbers
+     * @throws InvalidParameterException if n is greater than the number of active server type instances
+     */
+    public static List<String> getHighestNumberActiveServerNames(int n, String serverType) throws InvalidParameterException
+    {
+        List<String> serverTypeInstanceNames = new ArrayList<>();
+
+        // Only consider names of servers of the specified type
+        for (ServerInfoPackage serverInfo : activeServerInfo.values())
+        {
+            String serverName = serverInfo.getServerName();
+            if (serverName.contains(serverType))
+                serverTypeInstanceNames.add(serverName);
+        }
+
+        // Ensure valid n parameter was entered
+        if (n > serverTypeInstanceNames.size())
+            throw new InvalidParameterException("The requested number of server names to return (n) was greater than the number of active server type instances!");
+
+        // Sort filtered server names based on the numeric value of their endings
+        serverTypeInstanceNames.sort((name1, name2) -> {
+            int number1 = Integer.parseInt(name1.replaceAll("\\D", ""));
+            int number2 = Integer.parseInt(name2.replaceAll("\\D", ""));
+            return Integer.compare(number1, number2);
+        });
+
+        // Return sliced list to get the last n elements
+        return serverTypeInstanceNames.subList(serverTypeInstanceNames.size() - n, serverTypeInstanceNames.size());
     }
 }
