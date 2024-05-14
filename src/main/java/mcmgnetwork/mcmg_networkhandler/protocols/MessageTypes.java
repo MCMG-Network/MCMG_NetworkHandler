@@ -30,4 +30,11 @@ public class MessageTypes
      * an online server to transfer the player to.
      */
     public static final String LOBBY_TRANSFER_RESPONSE = "LobbyTransferResponse";
+
+    /**
+     * A message sent by game server instances to the proxy server upon completion of a game. This message instructs
+     * the MinigameLobbyManager to initialize or shutdown the requested lobby servers as necessary to prepare to return
+     * the game server's players to a lobby server.
+     */
+    public static final String LOBBY_PREPARATION_REQUEST = "LobbyPreparationRequest";
 }
