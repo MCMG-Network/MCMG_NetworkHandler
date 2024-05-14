@@ -75,7 +75,7 @@ public class ConfigUtil
      * @return The maximum number of servers of the specified type allowed on the network
      */
     public static int getMaxServerTypeCount(String serverType)
-    { return Integer.parseInt(config.getString(Route.fromString("max-server-type-counts." + serverType))); }
+    { return Integer.parseInt(config.getString(Route.fromString("max-server-type-instance-counts." + serverType))); }
 
     /**
      * @param serverName The name of the server type instance to retrieve the port of
